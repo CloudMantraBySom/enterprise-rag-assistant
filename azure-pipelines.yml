@@ -1,0 +1,58 @@
+trigger:
+  branches:
+    include: [main]
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  pythonVersion: "3.11"
+
+stages:
+  - stage: Test
+    displayName: Unit Tests
+    jobs:
+      - job: UnitTest
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: $(pythonVersion)
+          - script: pip install -r requirements.txt
+            displayName: Install dependencies
+          - script: pytest tests/ -v --tb=short
+            displayName: Run unit tests
+
+  - stage: Evaluate
+    displayName: RAGAS Quality Gate
+    dependsOn: Test
+    jobs:
+      - job: RAGASEval
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: $(pythonVersion)
+          - script: pip install -r requirements.txt
+            displayName: Install dependencies
+          - script: python -m evaluation.run_ragas_eval
+            displayName: RAGAS evaluation gate
+            env:
+              AZURE_OPENAI_API_KEY: $(AZURE_OPENAI_API_KEY)
+              AZURE_OPENAI_ENDPOINT: $(AZURE_OPENAI_ENDPOINT)
+              TAVILY_API_KEY: $(TAVILY_API_KEY)
+
+  - stage: Build
+    displayName: Docker Build & Push
+    dependsOn: Evaluate
+    jobs:
+      - job: BuildAndPush
+        steps:
+          - task: Docker@2
+            displayName: Build and push image to ACR
+            inputs:
+              command: buildAndPush
+              repository: enterprise-rag-assistant
+              dockerfile: Dockerfile
+              containerRegistry: AzureContainerRegistry
+              tags: |
+                $(Build.BuildId)
+                latest

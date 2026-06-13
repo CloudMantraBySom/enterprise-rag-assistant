@@ -1,0 +1,22 @@
+[
+  {
+    "question": "What is the company's remote work policy?",
+    "ground_truth": "Employees may work remotely up to 3 days per week with manager approval."
+  },
+  {
+    "question": "How do I reset a production database password?",
+    "ground_truth": "Use the Key Vault rotation runbook and update the secret reference; never hardcode credentials."
+  },
+  {
+    "question": "What is the SLA for the payments service?",
+    "ground_truth": "99.95% monthly uptime with a 30-minute incident response target."
+  },
+  {
+    "question": "What are the steps for incident escalation?",
+    "ground_truth": "Acknowledge within 5 minutes, engage on-call engineer within 15 minutes, open a P1 ticket, notify stakeholders."
+  },
+  {
+    "question": "What is the data retention policy for logs?",
+    "ground_truth": "Application logs are retained for 90 days; audit logs are retained for 7 years."
+  }
+]
